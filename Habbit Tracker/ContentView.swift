@@ -7,15 +7,49 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+struct Activity: Codable, Equatable {
+    var id = UUID()
+    var title: String
+    var description: String
+    var completionCount: Int
+}
+
+
+@Observable
+class Activities {
+    var activities = [Activity]() {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(activities) {
+                UserDefaults.standard.set(encoded, forKey: "Activities")
+            }
         }
-        .padding()
+    }
+    
+    init() {
+        if let savedActivities = UserDefaults.standard.data(forKey: "Activities") {
+            if let decodedActivities = try? JSONDecoder().decode([Activity].self, from: savedActivities) {
+                activities = decodedActivities
+                return
+            }
+        }
+        activities = []
+    }
+}
+
+struct ContentView: View {
+    @State private var title = ""
+    @State private var description = ""
+    
+    var activities: Activities
+    
+    var body: some View {
+        NavigationStack {
+            List(activities) { activity in
+                NavigationLink("title") {
+                    
+                }
+            }
+        }
     }
 }
 
